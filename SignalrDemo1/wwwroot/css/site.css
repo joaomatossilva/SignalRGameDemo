@@ -54,3 +54,27 @@ body {
   height: 60px;
   line-height: 60px; /* Vertically center the text there */
 }
+
+/* My stuff */
+
+.btn-game {
+    width: 100%;
+    height: 100px;
+    margin-bottom: 1em;
+}
+
+.btn-game-red {
+    background-color: red;
+}
+
+.btn-game-green {
+    background-color: green;
+}
+
+.btn-game-blue {
+    background-color: blue;
+}
+
+.btn-game-yellow {
+    background-color: yellow;
+}

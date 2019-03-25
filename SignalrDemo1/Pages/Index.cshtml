@@ -4,7 +4,131 @@
     ViewData["Title"] = "Home page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+
+<div id="hello">
+    Hello <span id="name"></span>. <br />
+    Please wait till the next round to start...
+
 </div>
+
+<div id="gameboard" style="display: none">
+    <div class="row">
+        <div class="col-12">
+            <h3>The color I want is: <span id="color"> </span></h3>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-6">
+            <button class="btn btn-game btn-game-red" data-color="Red">Red</button>
+        </div>
+        <div class="col-6">
+            <button class="btn btn-game btn-game-green" data-color="Green">Green</button>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-6">
+            <button class="btn btn-game btn-game-blue" data-color="Blue">Blue</button>
+        </div>
+        <div class="col-6">
+            <button class="btn btn-game btn-game-yellow" data-color="Yelow">Yelow</button>
+        </div>
+    </div>
+</div>
+
+<div id="scores" style="display: none">
+    <h1>scores... </h1>
+
+    <table class="table" id="scores-table"></table>
+
+</div>
+
+@section Scripts {
+    <script src="~/lib/signalr/dist/browser/signalr.js"></script>
+
+    <script type="text/javascript">
+
+        var name = prompt("Please enter your name", "");
+
+        if (name == null || name == "") {
+            name = "Ze bananas";
+        }
+
+        document.getElementById("name").textContent = name;
+        
+        var connection = new signalR.HubConnectionBuilder().withUrl("/game").build();
+
+        connection.on("showResults", function (results) {
+            $("#hello").hide();
+            $("#gameboard").hide();
+
+            console.log(results);
+            $("#scores-table").empty();
+            buildHtmlTable('#scores-table', results);
+
+            $("#scores").show();
+        });
+
+        connection.on("startRound", function (color) {
+            $("#hello").hide();
+            $("#scores").hide();
+            document.getElementById("color").textContent = color;
+
+            $("#gameboard").show();
+        });
+
+        connection.start().then(function () {
+
+        }).catch(function (err) {
+            return console.error(err.toString());
+        });
+
+        
+
+        $(".btn-game").click(function () {
+            $("#gameboard").hide();
+            var color = $(this).data("color");
+            connection.invoke("SubmitColor", name, color).catch(function (err) {
+                return console.error(err.toString());
+            });
+        });
+
+
+
+        function buildHtmlTable(selector, myList) {
+            var columns = addAllColumnHeaders(myList, selector);
+
+            for (var i = 0; i < myList.length; i++) {
+                var row$ = $('<tr/>');
+                for (var colIndex = 0; colIndex < columns.length; colIndex++) {
+                    var cellValue = myList[i][columns[colIndex]];
+                    if (cellValue == null) cellValue = "";
+                    row$.append($('<td/>').html(cellValue));
+                }
+                $(selector).append(row$);
+            }
+        }
+
+        // Adds a header row to the table and returns the set of columns.
+        // Need to do union of keys from all records as some records may not contain
+        // all records.
+        function addAllColumnHeaders(myList, selector) {
+            var columnSet = [];
+            var headerTr$ = $('<tr/>');
+
+            for (var i = 0; i < myList.length; i++) {
+                var rowHash = myList[i];
+                for (var key in rowHash) {
+                    if ($.inArray(key, columnSet) == -1) {
+                        columnSet.push(key);
+                        headerTr$.append($('<th/>').html(key));
+                    }
+                }
+            }
+            $(selector).append(headerTr$);
+
+            return columnSet;
+        }
+    </script>
+
+
+}
