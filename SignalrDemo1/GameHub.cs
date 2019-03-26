@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace SignalrDemo1
 {
-    public class GameHub : Hub
+    public class GameHub : Hub, IGameHub
     {
         // Admin >>> Clients
         public async Task StartRound()
