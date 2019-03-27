@@ -12,6 +12,8 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace SignalrDemo1
 {
+    using Microsoft.AspNetCore.SignalR;
+
     public class Startup
     {
         public Startup(IConfiguration configuration)
@@ -34,7 +36,7 @@ namespace SignalrDemo1
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
-
+            services.AddSignalR();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -55,7 +57,7 @@ namespace SignalrDemo1
             app.UseStaticFiles();
             app.UseCookiePolicy();
 
-
+            app.UseSignalR(build => { build.MapHub<GameHub>("/game"); });
 
             app.UseMvc();
         }
